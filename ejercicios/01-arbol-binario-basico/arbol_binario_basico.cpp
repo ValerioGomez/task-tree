@@ -156,15 +156,19 @@ void liberarArbol(NodoPtr pNode) {
 // ─────────────────────────────────────────────────────────────────────────────
 // VISUALIZACIÓN DEL ÁRBOL (girado 90° — raíz a la izquierda)
 // ─────────────────────────────────────────────────────────────────────────────
-void imprimirArbol(NodoPtr pNode, int nivel) {
+void imprimirArbol(NodoPtr pNode, int nivel, char prefijo = 'R') {
     if (pNode == NULL) return;
-    // Primero imprime el subárbol derecho (arriba en pantalla)
-    imprimirArbol(pNode->derecho, nivel + 1);
-    // Luego imprime este nodo con indentación
+    imprimirArbol(pNode->derecho, nivel + 1, 'd');
     for (int i = 0; i < nivel; i++) cout << "    ";
-    cout << "[" << pNode->dato << "]" << endl;
-    // Luego imprime el subárbol izquierdo (abajo en pantalla)
-    imprimirArbol(pNode->izquierdo, nivel + 1);
+    
+    if (prefijo == 'R')
+        cout << "[" << pNode->dato << "]" << endl;
+    else if (prefijo == 'd')
+        cout << "[" << pNode->dato << "]d" << endl;
+    else
+        cout << "i[" << pNode->dato << "]" << endl;
+        
+    imprimirArbol(pNode->izquierdo, nivel + 1, 'i');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

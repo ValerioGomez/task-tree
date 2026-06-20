@@ -244,12 +244,19 @@ AVLNODEPTR insertarAVL(AVLNODEPTR p, int x) {
 // ─────────────────────────────────────────────────────────────────────────────
 // VISUALIZACIÓN
 // ─────────────────────────────────────────────────────────────────────────────
-void imprimirAVL(AVLNODEPTR p, int nivel) {
+void imprimirAVL(AVLNODEPTR p, int nivel, char prefijo = 'R') {
     if (p == NULL) return;
-    imprimirAVL(p->derecho, nivel + 1);
+    imprimirAVL(p->derecho, nivel + 1, 'd');
     for (int i = 0; i < nivel; i++) cout << "    ";
-    cout << "[" << p->dato << " FE:" << factorEquilibrio(p) << "]" << endl;
-    imprimirAVL(p->izquierdo, nivel + 1);
+    
+    if (prefijo == 'R')
+        cout << "[" << p->dato << " FE:" << factorEquilibrio(p) << "]" << endl;
+    else if (prefijo == 'd')
+        cout << "[" << p->dato << " FE:" << factorEquilibrio(p) << "]d" << endl;
+    else
+        cout << "i[" << p->dato << " FE:" << factorEquilibrio(p) << "]" << endl;
+        
+    imprimirAVL(p->izquierdo, nivel + 1, 'i');
 }
 
 void inorden(AVLNODEPTR p) {

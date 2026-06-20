@@ -200,12 +200,19 @@ int profundidad(NodoPtr p, int valor, int nivel) {
 // ─────────────────────────────────────────────────────────────────────────────
 // VISUALIZACIÓN (árbol girado 90°)
 // ─────────────────────────────────────────────────────────────────────────────
-void imprimirArbol(NodoPtr pNode, int nivel) {
+void imprimirArbol(NodoPtr pNode, int nivel, char prefijo = 'R') {
     if (pNode == NULL) return;
-    imprimirArbol(pNode->derecho, nivel + 1);
+    imprimirArbol(pNode->derecho, nivel + 1, 'd');
     for (int i = 0; i < nivel; i++) cout << "    ";
-    cout << "[" << pNode->dato << "]" << endl;
-    imprimirArbol(pNode->izquierdo, nivel + 1);
+    
+    if (prefijo == 'R')
+        cout << "[" << pNode->dato << "]" << endl;
+    else if (prefijo == 'd')
+        cout << "[" << pNode->dato << "]d" << endl;
+    else
+        cout << "i[" << pNode->dato << "]" << endl;
+        
+    imprimirArbol(pNode->izquierdo, nivel + 1, 'i');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

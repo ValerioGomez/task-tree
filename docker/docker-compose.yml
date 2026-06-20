@@ -1,0 +1,36 @@
+version: '3.8'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Proyecto: Árboles en C++98
+# Uso:
+#   docker-compose up -d              <- Iniciar contenedor
+#   docker-compose exec arboles bash  <- Entrar al contenedor
+#   docker-compose down               <- Detener contenedor
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  arboles-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: arboles-cpp98
+    volumes:
+      # Monta el proyecto completo para edición en tiempo real
+      - ../:/app
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+  # Servicio de compilación rápida (ejecuta make y sale)
+  arboles-build:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: arboles-build
+    volumes:
+      - ../:/app
+    working_dir: /app
+    profiles:
+      - build
+    command: make all

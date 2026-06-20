@@ -1,0 +1,89 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "C++98: Compilar",
+            "type": "shell",
+            "options": {
+                "shell": {
+                    "executable": "C:\\msys64\\usr\\bin\\bash.exe",
+                    "args": ["-c"]
+                },
+                "cwd": "${fileDirname}"
+            },
+            "command": "export PATH=/ucrt64/bin:$PATH && g++ -std=c++98 -Wall -Wextra -pedantic -g '${fileBasename}' -o '${fileBasenameNoExtension}' && echo '' && echo '[OK] Compilado: ${fileBasenameNoExtension}'",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true,
+                "focus": true
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["relative", "${fileDirname}"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "C++98: Compilar y Ejecutar",
+            "type": "shell",
+            "options": {
+                "shell": {
+                    "executable": "C:\\msys64\\usr\\bin\\bash.exe",
+                    "args": ["-c"]
+                },
+                "cwd": "${fileDirname}"
+            },
+            "command": "export PATH=/ucrt64/bin:$PATH && g++ -std=c++98 -Wall -Wextra '${fileBasename}' -o '${fileBasenameNoExtension}' && echo '' && echo '=== EJECUTANDO ===' && echo '' && ./'${fileBasenameNoExtension}'",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true,
+                "focus": true
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["relative", "${fileDirname}"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "C++98: Ejecutar",
+            "type": "shell",
+            "options": {
+                "shell": {
+                    "executable": "C:\\msys64\\usr\\bin\\bash.exe",
+                    "args": ["-c"]
+                },
+                "cwd": "${fileDirname}"
+            },
+            "command": "export PATH=/ucrt64/bin:$PATH && ./'${fileBasenameNoExtension}'",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "focus": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}

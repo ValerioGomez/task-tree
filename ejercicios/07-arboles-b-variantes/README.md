@@ -6,78 +6,57 @@ Entender las **tres variantes** del árbol B, sus diferencias estructurales y cu
 
 ---
 
-## 📊 Comparativa Rápida
+## 📊 CUADRO COMPARATIVO: ÁRBOLES B, B+ Y B*
 
-| Propiedad | Árbol B | Árbol B+ | Árbol B* |
-|-----------|---------|----------|----------|
-| **Datos en** | Todos los nodos | **Solo hojas** | Todos los nodos |
-| **Nodos internos** | Llaves + datos | **Solo llaves** (guías) | Llaves + datos |
-| **Hojas enlazadas** | No | **Sí** (lista enlazada) | No |
-| **Mínimo ocupación** | 1/2 | 1/2 | **2/3** |
-| **Split** | 1 nodo → 2 | 1 nodo → 2 | Redistribuye primero; split 2→3 |
-| **Búsqueda** | O(log n) | O(log n) | O(log n) |
-| **Recorrido secuencial** | O(n) lento | **O(n) muy rápido** | O(n) lento |
-| **Uso real** | General | Índices de BD (MySQL, PostgreSQL) | NTFS, HFS+ |
-
----
-
-## 🌳 Árbol B (clásico)
-
-```
-         [15|25]
-        /   |   \
-    [5|10] [20] [30|35]
-```
-
-- Los datos (registros) se encuentran en **cualquier nivel**
-- Buscar puede terminar en un nodo interno → más rápido en ese caso
-- Recorrido inorden requiere bajar y subir constantemente
-
----
-
-## 🌳 Árbol B+
-
-```
-         [15]          ← nodo INTERNO: solo guía, sin datos reales
-        /     \
-   [5|10|15]  [20|25|30]   ← HOJAS: aquí están los datos
-       ↔                    ← enlazadas entre sí
-```
-
-**Ventaja clave — recorrido secuencial**: para hacer `SELECT * ORDER BY id` en una base de datos,
-solo hay que recorrer la **lista enlazada de hojas** sin subir/bajar por el árbol.
-
-**Por eso MySQL InnoDB, PostgreSQL y SQLite usan B+ para sus índices.**
-
-```
-Búsqueda de rango [10..25]:
-  1. Bajar por el árbol hasta la hoja con 10  → O(log n)
-  2. Recorrer la lista: 10 → 15 → 20 → 25    → O(k) donde k = resultados
-```
+| CARACTERÍSTICA | ÁRBOL B | ÁRBOL B+ | ÁRBOL B* |
+|----------------|---------|----------|----------|
+| 📌 **Definición** | Árbol balanceado donde cada nodo (interno y hoja) contiene llaves y datos completos | Árbol balanceado donde los nodos internos SOLO contienen llaves guía; los datos están en las hojas | Variante del B+ que mantiene los nodos al 66% de ocupación (vs 50%) mediante redistribución entre hermanos |
+| 🏗️ **Estructura Nodos Internos** | Contienen: Llaves + Datos + Punteros a hijos | Contienen: SOLO Llaves guía + Punteros a hijos | Igual que B+ pero con mayor densidad (≈66% ocupación) |
+| 🌿 **Estructura Hojas** | Contienen: Llaves + Datos completos | Contienen: Llaves + Datos completos + Punteros siguiente y anterior | Igual que B+ pero con mayor ocupación |
+| 🔗 **Enlace entre Hojas** | ❌ No | ✅ Sí (lista doblemente enlazada) | ✅ Sí (lista doblemente enlazada) |
+| 📈 **Factor de Ocupación** | 50% (mínimo) | 50% (mínimo) | 66% (mínimo, ≈2/3) |
+| 🗄️ **Uso de Memoria/Disco** | Medio | Medio | Alto (más compacto) |
+| 🔍 **Búsqueda por Clave** | O(logₘ n) | O(logₘ n) | O(logₘ n) |
+| 📊 **Búsqueda por Rango** | O(k · logₘ n) — necesita buscar cada elemento | O(logₘ n + k) — encuentra inicio y recorre hojas | O(logₘ n + k) — igual que B+ |
+| ⚡ **Velocidad de Lectura** | Media | Alta (en rangos) | Alta (en rangos) |
+| ✍️ **Velocidad de Escritura** | Media | Media | Lenta (por redistribución) |
+| 🔄 **Costo de Inserción** | Medio (split simple) | Medio (split simple) | Alto (redistribución + split) |
+| 🗑️ **Costo de Eliminación** | Medio (fusión/redistribución) | Medio (fusión/redistribución) | Alto (requiere mantener 66%) |
+| 📦 **Número de Niveles** | 3-4 para 1M registros | 3-4 para 1M registros | 2-3 para 1M registros (más compacto) |
+| 💾 **Espacio en Disco** | 200 MB (1M reg, 100B c/u) | 200 MB + punteros extra | 150 MB (mayor densidad) |
+| 🎯 **Caso de Uso Principal** | Sistemas de archivos, índices simples | Bases de datos relacionales (PostgreSQL, MySQL) | Sistemas de archivos con alta compresión |
+| 🏢 **Usado en** | Sistemas de archivos antiguos, algunos NoSQL | PostgreSQL, MySQL, Oracle, SQLite | Sistemas de archivos modernos (ej: HFS+) |
+| 🔧 **Complejidad Implementación**| Media | Media-Alta | Alta |
+| 📖 **Acceso Secuencial** | ❌ No optimizado | ✅ Excelente (punteros entre hojas) | ✅ Excelente (punteros entre hojas) |
+| 🧩 **Altura del Árbol** | h = logₘ N | h = logₘ N (menor en hojas) | h < logₘ N (por mayor densidad) |
+| 🏷️ **Llaves Duplicadas** | ❌ No permitidas | ✅ Permitidas (en hojas) | ✅ Permitidas (en hojas) |
+| 🎭 **Rol de Nodos Internos** | Contienen datos, participan en búsqueda | Solo señales de tráfico (guías) | Solo señales de tráfico (guías) |
+| 🔄 **Redistribución** | Solo en eliminación | Solo en eliminación | Antes de cada inserción (prestamismo) |
 
 ---
 
-## 🌳 Árbol B*
+## 🎯 DECISIONES DE DISEÑO: ¿CUÁL USAR?
 
-```
-Insertar en nodo lleno:
-  B  → split inmediato (1 nodo lleno → 2 nodos al 50%)
-  B* → primero intenta mover una llave al hermano (redistribución)
-       solo si ambos hermanos están llenos → split de 2 nodos en 3
-```
+### Elige ÁRBOL B si:
+- ✅ Necesitas acceso aleatorio y búsquedas puntuales
+- ✅ No necesitas búsquedas por rango frecuentes
+- ✅ Tienes pocas inserciones/eliminaciones
+- ✅ Sistema de archivos simple
+- ✅ Implementación más sencilla
 
-**Consecuencia**: los nodos del B* tienen en promedio **más llaves** → árbol más bajo →
-menos accesos a disco.
+### Elige ÁRBOL B+ si:
+- ✅ Queries BETWEEN son comunes (PostgreSQL)
+- ✅ SELECT con ORDER BY frecuentes
+- ✅ Escaneo secuencial de datos (full table scan)
+- ✅ Necesitas múltiples índices en la misma tabla
+- ✅ Motor de base de datos relacional
 
----
-
-## 💡 ¿Cuándo usar cada uno?
-
-```
-¿Necesitas recorridos de rango o secuenciales? → B+  (bases de datos)
-¿Sistema de archivos con espacio limitado?      → B*  (NTFS, HFS+)
-¿Uso general, código simple?                    → B   (clásico)
-```
+### Elige ÁRBOL B* si:
+- ✅ Espacio en disco es crítico (embebidos, IoT)
+- ✅ Pocas escrituras, muchas lecturas
+- ✅ Sistema de archivos con alta compresión
+- ✅ Necesitas máxima densidad de datos
+- ✅ Hardware con almacenamiento limitado
 
 ---
 

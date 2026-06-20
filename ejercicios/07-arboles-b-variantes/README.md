@@ -81,8 +81,62 @@ menos accesos a disco.
 
 ---
 
-## 🚀 Compilar y Ejecutar
+## 📚 TEORÍA DETALLADA
 
-```bash
-make && ./b_variantes
+### 1. ÁRBOL B CLÁSICO
+**Analogía:** Un archivador donde cada cajón contiene documentos completos.
+
+**Características:**
+- Los nodos internos SÍ contienen datos/registros completos.
+- Las hojas también contienen datos.
+- **Búsqueda:** O(log n) en promedio.
+- **Ideal para:** Acceso aleatorio y búsquedas puntuales.
+- **Práctica:** Ver carpeta `01-b-clasico`.
+
+### 2. ÁRBOL B+
+**Analogía:** Un mapa de carreteras donde las señales (nodos internos) te guían, pero solo las ciudades (hojas) tienen información real.
+
+**Características:**
+- **Nodos internos:** SOLO contienen llaves guía (no datos).
+- **Hojas:** Contienen TODOS los datos (registros completos).
+- **Hojas enlazadas:** Punteros siguiente para recorridos secuenciales.
+- **Ideal para:** Búsquedas por rango y queries `BETWEEN`.
+
+**Ventaja clave:**
+Para un `SELECT * FROM tabla WHERE id BETWEEN 100 AND 200`:
+- **Árbol B:** Recorre nodos internos, encuentra cada registro individualmente.
+- **Árbol B+:** Encuentra la hoja inicial (100), luego recorre hojas enlazadas hasta 200 de forma altamente optimizada.
+- **Práctica:** Ver carpeta `02-b-plus`.
+
+### 3. ÁRBOL B*
+**Analogía:** Un sistema de biblioteca donde si un estante está lleno, primero prestas libros a un estante vecino antes de comprar un estante nuevo.
+
+**Características:**
+- Mínimo **2/3 de ocupación** (vs 1/2 en B/B+).
+- Redistribución de llaves entre hermanos antes de dividir.
+- Mayor densidad → menos altura → menos lecturas de disco.
+- **Ideal para:** Sistemas de archivos con alta compresión.
+
+**Algoritmo de redistribución:**
+```text
+Si nodo N está lleno al insertar:
+    1. Buscar hermano H (izquierdo o derecho)
+    2. Si H tiene espacio libre (no está lleno):
+       - Mover llaves de N a H (redistribuir)
+       - Actualizar padres
+       - FIN (sin split)
+    3. Si H también está lleno:
+       - Crear nuevo nodo N2
+       - Dividir N + H en 3 nodos (cada uno 2/3 lleno)
+       - Actualizar punteros
 ```
+- **Práctica:** Ver carpeta `03-b-star`.
+
+---
+
+## 🚀 Práctica y Ejecución
+
+El código en este ejercicio ha sido separado en subcarpetas para aislar las estructuras:
+- `01-b-clasico/`
+- `02-b-plus/`
+- `03-b-star/`

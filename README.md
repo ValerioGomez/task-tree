@@ -23,7 +23,18 @@ task-tree/
 │   ├── punteros/               ← Repaso de punteros en C++
 │   ├── estructuras/            ← Repaso de structs y typedefs
 │   └── recursividad/           ← Repaso de funciones recursivas
-├── ejercicios/                 ← Carpeta principal con la guía de estudio (ver abajo)
+├── ejercicios/
+│   ├── 01-arbol-binario-basico/  ← Creación manual y manipulación de punteros
+│   ├── 02-arbol-busqueda/        ← Inserción, búsqueda y eliminación (BST)
+│   ├── 03-recorridos/            ← Preorden, Inorden, Postorden, BFS
+│   ├── 04-avl/                   ← Árbol balanceado con rotaciones y FE
+│   ├── 05-multicamino/           ← Árbol B de Orden 4 (B-Tree clásico)
+│   ├── 06-aplicaciones/          ← Detección de duplicados y frecuencias
+│   ├── 07-arboles-b-variantes/   ← Teoría y práctica de Variantes B
+│   │   ├── 01-b-clasico/         ← Estructura de B-Tree estándar
+│   │   ├── 02-b-plus/            ← Estructura de B+ (Hojas enlazadas)
+│   │   └── 03-b-star/            ← Estructura de B* (Redistribución)
+│   └── 08-cache-busqueda/        ← Memoización y desalojo LRU
 └── docs/
     ├── teoria_arboles.md         ← Teoría completa y fórmulas matemáticas
     └── diagramas/                ← Carpeta para diagramas de referencia

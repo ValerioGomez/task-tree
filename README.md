@@ -70,47 +70,143 @@ Si prefieres no usar Docker y tienes instalado **MSYS2** (con `g++` en el PATH):
 
 ## 📖 Guía de Estudio y Ejercicios (Tutorial)
 
-Esta sección explica paso a paso cada uno de los ejercicios incluidos en el proyecto. Puedes tratarlos como un tutorial secuencial para entender desde lo más básico hasta los conceptos más avanzados.
+Esta sección explica detalladamente cada uno de los ejercicios incluidos en el proyecto. Puedes tratarlos como un tutorial secuencial para entender desde lo más básico hasta los conceptos más avanzados.
 
 ### Ejercicio 01: Árbol Binario Básico
 - **Ruta:** `ejercicios/01-arbol-binario-basico/`
-- **¿Cómo funciona?** Introduce la estructura fundamental `NodoArbol`. Un nodo contiene un valor y punteros a sus hijos izquierdo y derecho. La construcción del árbol se hace de forma manual enlazando punteros, sin algoritmos automáticos.
-- **¿Qué se espera?** Entender cómo se relacionan los nodos en memoria mediante punteros y cómo instanciar un árbol simple de forma directa. Al compilar y ejecutar, verás la estructura del árbol impresa, lo que confirma que los enlaces se realizaron correctamente.
+- **¿Cómo funciona?** Introduce la estructura fundamental de cualquier árbol binario: `NodoArbol`. La función `crearArbol(int x)` se encarga de instanciar un nodo en memoria dinámica usando `malloc`, inicializando sus punteros en `NULL`. En este nivel inicial, **no hay algoritmos automáticos**; la construcción del árbol se hace de forma manual enlazando punteros explícitamente mediante funciones como `asignarHijoIzquierdo()`.
+- **Estructura y Funciones Clave:**
+  ```cpp
+  struct NodoArbol {
+      int dato;
+      struct NodoArbol *padre;
+      struct NodoArbol *izquierdo;
+      struct NodoArbol *derecho;
+  };
+  ```
+  La clase sirve como el "ladrillo" base. Las funciones accesorias como `padre()`, `hijoIzquierdo()`, y booleanas como `esHijoIzquierdo()` sirven para navegar y clasificar la relación entre nodos una vez enlazados manualmente.
+- **¿Qué se espera?** Entender cómo se relacionan los nodos en memoria. Al ejecutar el archivo, verás la estructura del árbol impresa en pantalla mediante la recursividad de `imprimirArbol()` (mostrado girado 90 grados) y cómo se verifican las relaciones familiares (como el `hermano()` de un nodo).
 
 ### Ejercicio 02: Árbol de Búsqueda (BST)
 - **Ruta:** `ejercicios/02-arbol-busqueda/`
-- **¿Cómo funciona?** Implementa un Árbol Binario de Búsqueda (BST), donde cada nodo a la izquierda es menor que el nodo raíz y cada nodo a la derecha es mayor. Se incluye la lógica de inserción ordenada, búsqueda rápida y eliminación.
-- **¿Qué se espera?** Comprenderás a fondo los 3 casos de eliminación: nodo hoja (sin hijos), nodo con un solo hijo, y nodo con dos hijos (donde se busca el sucesor inorden para reemplazar). El programa de prueba validará la inserción de números y su correcta eliminación mostrando el estado final.
+- **¿Cómo funciona?** Implementa la regla de oro de los Árboles Binarios de Búsqueda: *Todo nodo a la izquierda es menor que la raíz, y todo nodo a la derecha es mayor o igual.* Aquí entran en juego algoritmos recursivos verdaderos. La función `insertar(NodoPtr pNode, int data)` navega recursivamente decidiendo el camino a tomar, y reasignando el puntero resultante a su padre.
+- **Partes de Código Destacadas:**
+  La eliminación en `deleteNode(NodoPtr root, int x)` es la operación maestra, manejando rigurosamente 3 escenarios:
+  1. **Nodo Hoja:** `root->izquierdo == NULL && root->derecho == NULL`. Se libera directo con `freeNode()`.
+  2. **Un solo hijo:** El hijo "sube" a tomar el lugar de su padre.
+  3. **Dos hijos:** Se busca el "sucesor inorden" (el nodo más pequeño del subárbol derecho, hallado mediante `minNode()`), se copia su valor en el nodo a eliminar, y luego la recursión elimina al sucesor original en la profundidad.
+- **¿Qué se espera?** Comprenderás cómo el árbol mantiene su estado globalmente ordenado tras cada operación. El programa validará el comportamiento borrando nodos con 0, 1 y 2 hijos, mostrando gráficamente el resultado.
 
 ### Ejercicio 03: Recorridos de Árboles
 - **Ruta:** `ejercicios/03-recorridos/`
-- **¿Cómo funciona?** Implementa diferentes estrategias para visitar los nodos. Incluye recorridos en profundidad (DFS) de forma recursiva: Preorden (Raíz-Izq-Der), Inorden (Izq-Raíz-Der) y Postorden (Izq-Der-Raíz). También implementa el recorrido en anchura (BFS) utilizando una cola (`std::queue`).
-- **¿Qué se espera?** Lograrás visualizar cómo la recursividad baja y sube por las ramas del árbol, y cómo una estructura de cola permite explorar el árbol nivel por nivel. Al ejecutarlo, el programa mostrará el orden exacto de visita de los nodos en cada estrategia.
+- **¿Cómo funciona?** Explora las diferentes estrategias para visitar (o "atravesar") la totalidad de los nodos. Se implementan tanto recorridos en profundidad (DFS) de forma recursiva, como en anchura (BFS) usando iteración y colas.
+- **Funciones de Recorrido:**
+  - **Inorden (`recorridoInorden`):** Visita `Izquierda → Raíz → Derecha`. Es crítico porque en un BST garantiza que visites los nodos en **orden ascendente estricto**.
+  - **Preorden (`recorridoPreorden`):** Visita `Raíz → Izquierda → Derecha`. Muy útil para "clonar" o serializar la estructura topológica del árbol.
+  - **Postorden (`recorridoPostorden`):** Visita `Izquierda → Derecha → Raíz`. Vital para funciones como `liberarArbol()`, ya que asegura destruir los sub-árboles hijos antes de destruir al nodo padre.
+  - **Anchura (`recorridoAnchura`):** Visita nivel por nivel utilizando una estructura auxiliar nativa de C++ (`std::queue`).
+    ```cpp
+    queue<NodoPtr> cola;
+    cola.push(root);
+    // ... dentro de un ciclo while(!cola.empty()):
+    NodoPtr actual = cola.front(); 
+    cola.pop();
+    if (actual->izquierdo != NULL) cola.push(actual->izquierdo);
+    if (actual->derecho != NULL) cola.push(actual->derecho);
+    ```
+- **¿Qué se espera?** Visualizar el impacto de colocar la instrucción `cout` antes, durante o después de las llamadas recursivas y entender para qué algoritmos reales sirve cada enfoque.
 
 ### Ejercicio 04: Árbol AVL (Auto-balanceado)
 - **Ruta:** `ejercicios/04-avl/`
-- **¿Cómo funciona?** Extiende el concepto del BST agregando un "factor de equilibrio" en cada nodo. Esto evita la degeneración (que el árbol se vuelva una lista enlazada asimétrica). Si un subárbol difiere del otro en más de 1 nivel de altura, se aplican rotaciones para balancearlo.
-- **¿Qué se espera?** Entender y poner a prueba las 4 rotaciones: Simples (LL, RR) y Dobles (LR, RL). Al añadir elementos secuenciales que normalmente desbalancearían el árbol (como insertar 1, 2, 3...), el AVL corregirá su estructura automáticamente, manteniendo la complejidad de búsqueda en O(log n).
+- **¿Cómo funciona?** Soluciona el peor caso del BST: la degeneración en una lista enlazada (por ej. si insertas `1, 2, 3, 4, 5...`). La estructura del nodo muta a `avl_node` añadiendo un campo `int altura`. Tras cada inserción, la función `balancear()` revisa el **Factor de Equilibrio (FE)** de los nodos:
+  `FE = getAltura(p->derecho) - getAltura(p->izquierdo)`
+  Si el FE se sale del rango permisible `[-1, 0, 1]`, se gatilla una rotación matemática de punteros.
+- **Partes de Código Destacadas (Rotaciones):**
+  Existen 4 subrutinas complejas de ajuste de punteros:
+  - `rotacionDerecha(AVLNODEPTR p)`: Aplica para desbalances a la izquierda (Left-Left).
+  - `rotacionIzquierda(AVLNODEPTR p)`: Para casos de desbalance a la derecha (Right-Right).
+  - Y las rotaciones dobles: `rotacionDobleIzqDer` (Left-Right) y `rotacionDobleDerIzq` (Right-Left).
+- **¿Qué se espera?** Al insertar números puramente ascendentes en la terminal, el programa alertará automáticamente `[Rotacion Simple IZQUIERDA en nodo X]`, y podrás ver cómo, como por arte de magia, la raíz cambia y la altura permanece en tiempo logarítmico `O(log n)`.
 
 ### Ejercicio 05: Árbol Multicamino (B-Tree Clásico)
 - **Ruta:** `ejercicios/05-multicamino/`
-- **¿Cómo funciona?** Implementa un Árbol B de orden 4. A diferencia de los árboles binarios, un nodo aquí puede almacenar múltiples claves y apuntar a múltiples hijos. Cuando un nodo se llena, ocurre un evento llamado "split" (división), empujando la clave mediana hacia el padre.
-- **¿Qué se espera?** Observar un concepto fundamental de bases de datos: cómo el árbol crece "hacia arriba" al dividirse la raíz, en lugar de crecer hacia abajo. Al ejecutar el código e insertar un gran volumen de datos, verás cómo se dividen las páginas y se mantiene un balance perfecto.
+- **¿Cómo funciona?** Cambia por completo el paradigma del nodo binario. Introducimos un **Árbol B de Orden 4** (2-3-4 tree). La estructura principal, `multicamino_node`, abandona el concepto de un solo dato y adopta arreglos de llaves y punteros.
+- **Estructura y Partes Clave:**
+  ```cpp
+  #define ORDEN 4
+  #define MAX_LLAVES (ORDEN - 1)  // 3 llaves como máximo
+  struct multicamino_node {
+      int num_llaves;             // Contador actual
+      int llaves[MAX_LLAVES];     // Arreglo de datos ordenados
+      struct multicamino_node *hijos[ORDEN]; // Hasta 4 ramas
+      bool es_hoja;
+  };
+  ```
+  La función más trascendental es `splitChild()`. Cuando la función `insertarNoLleno()` detecta que está bajando hacia un nodo que ya tiene `MAX_LLAVES` (3 claves), invoca a `splitChild()`. Este procedimiento divide físicamente el arreglo en dos nodos independientes y **empuja la clave mediana hacia el padre**, previniendo desbordamientos sin romper el ordenamiento.
+- **¿Qué se espera?** Dominar la base teórica de cómo se indexan las grandes Bases de Datos Relacionales. A diferencia de un BST que crece extendiendo ramas hacia abajo, observarás que el Árbol B engorda y **crece hacia arriba** (añadiendo niveles desde la nueva raíz producto de un split de la raíz anterior).
 
 ### Ejercicio 06: Aplicaciones de Árboles
 - **Ruta:** `ejercicios/06-aplicaciones/`
-- **¿Cómo funciona?** Aplica la teoría a problemas algorítmicos concretos, como la detección rápida de elementos duplicados en un flujo de datos y la evaluación de expresiones matemáticas (donde los operadores son nodos internos y los operandos son hojas).
-- **¿Qué se espera?** Consolidar los conocimientos previos viendo cómo las estructuras en árbol resuelven problemas reales de forma elegante y altamente optimizada.
+- **¿Cómo funciona?** Archivos dedicados a aplicar la teoría pura en resolver problemas comunes. El ejemplo principal (archivo `duplicados.cpp`) consiste en detectar todos los elementos repetidos de un flujo de entrada. La función `encontrarDuplicados()` intenta insertar en un BST; sin embargo, al recorrer el camino si encuentra que `dato_a_insertar == p->dato`, bloquea la inserción y gatilla una alerta de duplicidad.
+- En una variante extendida, el árbol se equipa con un `NodoConteo`:
+  ```cpp
+  struct NodoConteo {
+      int dato;
+      int count;   // <--- Acumulador de frecuencias
+      // ...
+  };
+  ```
+- **¿Qué se espera?** Apreciarás que usar un árbol binario para buscar duplicados y contar frecuencias evita la necesidad de bucles anidados `for` de `O(n²)`, haciéndolo inmensamente superior al lograr un rendimiento cercano a `O(n log n)`.
 
 ### Ejercicio 07: Variantes de Árboles B (B, B+, B*)
 - **Ruta:** `ejercicios/07-arboles-b-variantes/`
-- **¿Cómo funciona?** Un módulo enfocado en resaltar las diferencias estratégicas (políticas de split y almacenamiento) entre el Árbol B clásico, el B+ (donde los datos reales residen únicamente en las hojas, que están enlazadas como una lista) y el B* (que busca mayor densidad de almacenamiento redistribuyendo datos con nodos hermanos antes de hacer un split).
-- **¿Qué se espera?** Aprender a elegir la variante arquitectónica correcta según el caso de uso (como indexación en bases de datos relacionales vs. sistemas de archivos). El código demostrará las diferencias estructurales y de comportamiento en inserciones críticas.
+- **¿Cómo funciona?** Un módulo analítico/teórico enfocado en las sutiles pero enormes diferencias de diseño que marcan a la industria del almacenamiento físico (Discos y SSD):
+  - **Árbol B Clásico:** Guarda registros completos en cualquier nodo (interno o hoja).
+  - **Árbol B+:** Diseñado para rangos rápidos. Los nodos internos no guardan "datos", solo actúan como "señales de tráfico" (`llaves guía`). Los datos enteros yacen apretados en las **hojas**, las cuales a su vez mantienen un puntero `siguiente` conformando una lista enlazada a nivel de suelo.
+  - **Árbol B*:** Su obsesión es la densidad (espacio en disco). Retrasa las costosas divisiones (`splits`) aplicando una técnica de "prestamismo": si un nodo se llena, traslada parte de sus claves a un nodo `hermano` vecino; solo si ambos están llenos se decide hacer un split que envuelva a 2 nodos para crear 3.
+- **¿Qué se espera?** Distinguir cuándo un motor de búsqueda como PostgreSQL usa B+ (ideal para queries de tipo `BETWEEN`) vs cuándo un sistema de archivos opta por arquitecturas de alta compresión.
 
 ### Ejercicio 08: Caché de Búsqueda (Memoización y LRU)
 - **Ruta:** `ejercicios/08-cache-busqueda/`
-- **¿Cómo funciona?** Integra una capa de memoria caché utilizando tablas Hash/Map para acelerar las búsquedas en el árbol. Adicionalmente, implementa una política de desalojo LRU (Least Recently Used) para gestionar el tamaño de la caché y descartar los datos más antiguos cuando esta se llena.
-- **¿Qué se espera?** Comprobar empíricamente las mejoras de rendimiento. Al buscar el mismo dato varias veces, la primera búsqueda recorrerá el árbol (costoso), pero las subsecuentes recuperarán el dato directamente de la caché (en tiempo O(1)). La terminal mostrará métricas y el historial de desalojo.
+- **¿Cómo funciona?** Aborda un problema arquitectónico real de servidores: Aunque un árbol AVL es muy rápido `O(log n)`, "saltar" por punteros de RAM incurre en tiempos de búsqueda que, en alta latencia, no son ideales si preguntas por el mismo dato mil veces. La solución acopla un Mapa en Hash frente al Árbol.
+  Al buscar un número, primero se busca en la caché (rápido, en `O(1)`). Si no existe (*Cache Miss*), se recorre el árbol y luego se inyecta en la caché. Para evitar que la RAM explote, implementa el algoritmo **LRU (Least Recently Used)**: si la cuota máxima se alcanza, se descarta implacablemente el dato que no haya sido consultado en mayor cantidad de tiempo.
+- **¿Qué se espera?** Visualizar mediante analíticas en consola los porcentajes de *Cache Hit* y *Cache Miss*, experimentando con un caso práctico la forma en que arquitecturas modernas (como Memcached o Redis junto a una base SQL) lidian con bases de datos en disco.
+
+---
+
+## ✅ Matriz de Cumplimiento (Requisitos del Ejercicio)
+
+Este proyecto cumple al **100%** con los requisitos y ejercicios propuestos en el material de estudio. A continuación, la ruta de verificación para cada punto solicitado:
+
+### 1. Funciones Primitivas y Árbol Binario (build123)
+Todas las operaciones primitivas se desarrollaron con nombres equivalentes en español para facilitar la didáctica, y se encuentran principalmente en el **Ejercicio 01** y **Ejercicio 02**:
+- `createNode()` y `freeNode()` ➔ Implementadas en `01/arbol_binario_basico.cpp`.
+- `makeTree()` ➔ Implementada como `crearArbol()`.
+- `setLeftChild()`, `setRightChild()` ➔ Implementadas como `asignarHijoIzquierdo()` y `asignarHijoDerecho()`.
+- `isLeft()`, `isRight()`, `sibling()` ➔ Implementadas como `esHijoIzquierdo()`, `esHijoDerecho()` y `hermano()`.
+- `find()`, `insert()`, `deleteNode()` ➔ Implementadas fielmente en `02/arbol_busqueda.cpp`.
+- `size()` y `minimum()` ➔ Implementadas en `02/arbol_busqueda.cpp`.
+- **Ejercicio `build123`**: Las 3 formas de construir el árbol (asignación directa, variables separadas y función `insert`) están rigurosamente implementadas bajo los nombres `construirEjemplo_1`, `construirEjemplo_2` y `construirEjemplo_3` en el Ejercicio 01.
+
+### 2. Recorridos
+- `Preorden`, `Inorden`, `Postorden` ➔ Implementados en `03-recorridos/recorridos.cpp`.
+- Se añadió de manera extra el recorrido en `Anchura (BFS)` por niveles usando colas.
+
+### 3. Árbol AVL y Rotaciones
+- Implementado en `04-avl/arbol_avl.cpp`.
+- Calcula dinámicamente el **Factor de equilibrio**.
+- Aplica de forma automática las rotaciones simples (Derecha, Izquierda) y dobles al insertar datos de forma desbalanceada.
+
+### 4. Batería de Pruebas y Diagramas
+- **El Array oficial:** El array solicitado `{15,4,8,7,4,3,19,5,7,9,16,5,17}` ha sido incluido por defecto en `02-arbol-busqueda.cpp` y en `06-aplicaciones/duplicados.cpp`.
+- **Casos de Eliminación:** El código `02` incluye pruebas aisladas que eliminan explícitamente nodos con 0, 1 y 2 hijos.
+- **Diagramas (Impresión):** Para cumplir el requerimiento de diagramación sin dependencias externas, se programaron algoritmos como `imprimirArbol()` e `imprimirAVL()` que grafican de forma elegante y recursiva la estructura de los nodos, incluyendo la impresión del *Factor de Equilibrio* al vuelo en la misma terminal.
+
+### 5. Extensión a Árboles Multicaminos
+- Implementado en `05-multicamino/arbol_multicamino.cpp`.
+- Usa exactamente la estructura `node` con arreglos de llaves (3) y punteros hijos (4).
+- Las funciones requeridas `numTrees()`, `child(i)` y `key(i)` están codificadas y puestas a prueba.
+- El recorrido ascendente se ejecuta mediante `traverse()`.
 
 ---
 
